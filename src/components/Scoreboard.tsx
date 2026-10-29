@@ -1,9 +1,21 @@
+import { CheckCircle2, CircleAlert } from "lucide-react";
 import { cr, deadlines, facts, people, type Result } from "@/lib/data";
 import { CountUp, Num, StatusPill } from "./ui-bits";
 
 export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
   const shareOk = Math.abs(r.propertyShare - r.targetShare) <= 5;
   const plantPct = Math.min(100, (r.cashForPlant / r.plantNeed) * 100);
+  const shareDiff = Math.round((r.propertyShare - r.targetShare) * 10) / 10;
+  const shareDiffLabel =
+    shareDiff > 0
+      ? `${shareDiff} pts above target`
+      : shareDiff < 0
+      ? `${Math.abs(shareDiff)} pts below target`
+      : "On target";
+
+  const isSpare = r.plantGap <= 0;
+  const gapAbs = Math.abs(r.plantGap);
+  const plantWord = isSpare ? `${cr(gapAbs)} spare` : `${cr(gapAbs)} short`;
 
   return (
     <div className="space-y-6">
@@ -33,9 +45,7 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
           />
         </div>
         <p className="mt-1.5 text-[11px] text-muted-foreground">
-          {r.propertyShare > 60
-            ? "⚠️ Exceeds 60% wealth concentration threshold"
-            : "Balanced portfolio allocation"}
+          {r.propertyShare > 60 ? `⚠️ ${shareDiffLabel} (exceeds 60% threshold)` : shareDiffLabel}
         </p>
       </div>
 
@@ -53,7 +63,16 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
               <CountUp value={r.cashForPlant} format={(n) => cr(Math.round(n * 10) / 10)} />
             </Num>
           </span>
-          <StatusPill s={r.deadlines["plant"] ?? "Partly"} />
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${
+              isSpare
+                ? "text-met bg-met/10 border-met/25"
+                : "text-burgundy bg-burgundy/10 border-burgundy/25"
+            }`}
+          >
+            {isSpare ? <CheckCircle2 size={13} aria-hidden /> : <CircleAlert size={13} aria-hidden />}
+            {plantWord}
+          </span>
         </div>
         <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-cream">
           <div
@@ -107,15 +126,24 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
       {/* Deadlines */}
       {!compact && (
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="eyebrow text-walnut font-semibold border-b border-border pb-2">Irrevocable Deadlines</p>
+          <p className="eyebrow text-walnut font-semibold border-b border-border pb-2">Key Deadlines & Timeline</p>
           <ul className="mt-3 space-y-3">
             {deadlines.map((d) => (
               <li key={d.key} className="flex items-start justify-between gap-3 text-xs sm:text-sm">
                 <div>
-                  <span className="tnum font-semibold text-gold-deep">{d.date}</span>
-                  <p className="text-muted-foreground text-[11px] leading-snug">{d.label}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium text-ink leading-snug">{d.label}</p>
+                    {d.flagged && (
+                      <span className="rounded bg-burgundy/10 px-1.5 py-0.5 text-[10px] font-bold text-burgundy border border-burgundy/25">
+                        Flagged
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <StatusPill s={r.deadlines[d.key] ?? "Partly"} />
+                <div className="shrink-0 text-right">
+                  <span className="tnum font-semibold text-gold-deep block">{d.date}</span>
+                  <span className="tnum text-[11px] text-muted-foreground block">{d.timeRemaining}</span>
+                </div>
               </li>
             ))}
           </ul>

@@ -62,9 +62,9 @@ function Teaser() {
           </p>
         </div>
         <div>
-          <p className="text-xs text-on-dark-muted">Gap</p>
+          <p className="text-xs text-on-dark-muted">Plant shortfall</p>
           <p className="font-display text-2xl font-bold md:text-3xl text-on-dark">
-            <CountUp value={r.fairnessGap} format={(n) => cr(Math.round(n))} />
+            <CountUp value={Math.max(0, r.plantGap)} format={(n) => cr(Math.round(n))} />
           </p>
         </div>
       </div>
@@ -140,14 +140,24 @@ function Landing() {
         />
         <div className="absolute inset-0 -z-10 bg-espresso/80" />
         <div className="mx-auto max-w-7xl px-4 py-24 md:px-8 md:py-36">
-          <p className="eyebrow text-gold">Three dates. No extensions.</p>
-          <ol className="mt-10 grid gap-8 md:grid-cols-3">
-            {deadlines.map((d) => (
-              <li key={d.key} className="border-t border-gold pt-5">
-                <p className="tnum font-display text-3xl font-bold md:text-4xl text-on-dark">{d.date}</p>
-                <p className="mt-2 text-on-dark-muted">{d.label}</p>
-              </li>
-            ))}
+          <p className="eyebrow text-gold">Four clocks</p>
+          <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            {deadlines
+              .filter((d) => d.key !== "wedding")
+              .map((d) => (
+                <li key={d.key} className="border-t border-gold pt-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="tnum font-display text-2xl font-bold text-on-dark md:text-3xl">{d.date}</p>
+                    {d.flagged && (
+                      <span className="rounded bg-burgundy/90 px-1.5 py-0.5 text-[11px] font-semibold text-cream">
+                        Flagged
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-2 text-on-dark-muted text-sm leading-snug">{d.label}</p>
+                  <p className="mt-1 text-xs text-gold font-medium">{d.timeRemaining}</p>
+                </li>
+              ))}
           </ol>
         </div>
       </section>

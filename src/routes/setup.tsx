@@ -137,10 +137,10 @@ function Setup() {
           <div className="sticky top-20 rounded-md border border-border bg-card p-5 shadow-sm">
             <p className="eyebrow text-gold-deep">Readiness</p>
             <ul className="mt-4 space-y-3 text-sm">
-              <li className="flex items-center justify-between">
-                <span className="text-ink">Prices</span>
-                <span className="inline-flex items-center gap-1 font-semibold text-met">
-                  <CheckCircle2 size={14} /> Verified
+              <li className="flex flex-col gap-1 border-b border-border/60 pb-2.5">
+                <span className="text-ink font-medium">Prices</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-partly">
+                  <Hourglass size={13} /> Asking listings only; registered sales pending
                 </span>
               </li>
               <li className="flex items-center justify-between">

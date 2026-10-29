@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Check, ChevronUp } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Check, ChevronUp, RotateCcw } from "lucide-react";
 import { useBoard } from "@/lib/store";
 import { cr, facts, moves, people, presets, properties, worliComps } from "@/lib/data";
 import { Num, StatusPill, TagChip } from "@/components/ui-bits";
@@ -24,8 +24,79 @@ export const Route = createFileRoute("/board")({
   component: Board,
 });
 
+interface InsightData {
+  title: string;
+  source: string;
+  calc: string;
+  tag: "Assumed" | "Sourced";
+}
+
+const insightsData: InsightData[] = [
+  {
+    title: "Alibaug ≈ ₹15 lakh per weekend",
+    source: "Family usage pattern & holding cost",
+    calc: "₹8 Cr capital tied up + maintenance for 4 weekends/year equates to ~₹15 lakh per weekend stay.",
+    tag: "Assumed",
+  },
+  {
+    title: "Property earns ≈ 3.7% gross",
+    source: "Cushman & Wakefield & market rental yields",
+    calc: "BKC floor yields 8.55% (₹4.02 Cr/yr), Worli 2.7% (₹0.4 Cr/yr); total ₹120 Cr portfolio yields ~3.7% gross across residential and commercial.",
+    tag: "Sourced",
+  },
+  {
+    title: "Buying beats renting only above ≈ 6.6% appreciation",
+    source: "Cost-of-capital & yield model",
+    calc: "At 2.5% rental yield and 7% alternative fund return on capital, purchase breaks even only if annual property appreciation exceeds ~6.6%.",
+    tag: "Assumed",
+  },
+];
+
+function InsightPopover({ item }: { item: InsightData }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const h = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1 text-xs font-medium text-ink hover:border-gold-deep transition-colors shadow-xs"
+      >
+        <span className="h-1.5 w-1.5 rounded-full bg-gold-deep" />
+        {item.title}
+      </button>
+      {open && (
+        <div
+          role="dialog"
+          className="fade-slow absolute left-0 top-full z-50 mt-2 w-80 rounded-lg border border-line-dark bg-espresso p-4 text-left text-xs text-on-dark shadow-2xl"
+        >
+          <div className="mb-2 flex items-center justify-between border-b border-line-dark pb-1.5">
+            <span className="eyebrow text-gold">Insight Evidence</span>
+            <TagChip t={item.tag} />
+          </div>
+          <p className="font-semibold text-on-dark text-sm">{item.title}</p>
+          <p className="mt-2 text-on-dark-muted text-xs leading-relaxed">{item.calc}</p>
+          <p className="mt-2 text-[11px] text-champagne/80 border-t border-line-dark pt-1.5">
+            Source: {item.source}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Board() {
-  const { on, toggle, applyPreset, preset, result, setup } = useBoard();
+  const { on, toggle, applyPreset, preset, result, setup, setSetup, reset } = useBoard();
   const [sheet, setSheet] = useState(false);
 
   return (
@@ -42,6 +113,17 @@ function Board() {
         <h1 className="mt-2 max-w-4xl text-3xl font-bold leading-tight text-ink md:text-5xl">
           Commit <Num fact={facts.worli}>₹15 Cr</Num> to the Worli flat for Arjun, or what instead?
         </h1>
+        <p className="mt-3 text-xs italic text-muted-foreground flex items-center gap-1.5">
+          <span>⚠️ Illustrative figures; tax and legal pending</span>
+        </p>
+
+        {/* Insights Strip */}
+        <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          <span className="eyebrow text-gold-deep text-[11px] mr-1">Key Insights:</span>
+          {insightsData.map((item) => (
+            <InsightPopover key={item.title} item={item} />
+          ))}
+        </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[280px_1fr_320px]">
@@ -53,6 +135,7 @@ function Board() {
               {properties.map((p) => {
                 const s = setup.props.find((x) => x.id === p.id) || p;
                 const sold = (p.id === "alibaug" && on.has("alibaug")) || (p.id === "bkc" && on.has("bkc"));
+                const isWorli = p.id === "worli_existing";
                 return (
                   <li
                     key={p.id}
@@ -65,7 +148,14 @@ function Board() {
                       <span className="tnum text-sm text-ink">{cr(s.value)}</span>
                     </div>
                     <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                      <span>{p.note}</span>
+                      <span className="flex items-center gap-1">
+                        {p.note}
+                        {isWorli && (
+                          <span className="rounded bg-burgundy/10 px-1 py-0.5 text-[10px] font-bold text-burgundy border border-burgundy/20">
+                            Society vote ~13 Dec
+                          </span>
+                        )}
+                      </span>
                       <span className="text-gold-deep font-medium">{sold ? "Sell" : s.status}</span>
                     </div>
                   </li>
@@ -90,16 +180,71 @@ function Board() {
           </section>
         </aside>
 
-        {/* Centre Column: Scenarios, Moves, and Comps */}
+        {/* Centre Column: Scenarios, Reserve Slider, Moves, and Comps */}
         <section className="min-w-0 space-y-8">
+          {/* Liquid Reserve Slider Card with Break-Even Marker */}
+          <div className="rounded-md border border-border bg-card p-4">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <p className="eyebrow text-muted-foreground">Liquid Reserve Slider</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Break-even reserve is ₹23.95 Cr (funds flat + plant without asset sales)
+                </p>
+              </div>
+              <span className="tnum font-display text-xl font-bold text-ink">
+                ₹{setup.reserve.toFixed(1)} Cr
+              </span>
+            </div>
+
+            <div className="relative mt-5 mb-2">
+              <input
+                type="range"
+                min="15"
+                max="40"
+                step="0.5"
+                value={setup.reserve}
+                onChange={(e) => setSetup({ ...setup, reserve: Number(e.target.value) })}
+                className="w-full h-2 rounded-lg cursor-pointer bg-cream border border-border accent-gold"
+                aria-label="Liquid reserve slider"
+              />
+              {/* Marker at ₹23.95 Cr: ((23.95 - 15) / (40 - 15)) * 100 = 35.8% */}
+              <div
+                className="absolute -top-1 pointer-events-none flex flex-col items-center"
+                style={{ left: `${((23.95 - 15) / 25) * 100}%`, transform: "translateX(-50%)" }}
+              >
+                <div className="w-0.5 h-4 bg-burgundy" />
+                <span className="text-[10px] font-semibold text-burgundy whitespace-nowrap bg-cream/95 px-1 py-0.5 rounded border border-burgundy/25 mt-1">
+                  ₹23.95 Cr break-even
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-between text-[11px] text-muted-foreground">
+              <span>Min ₹15 Cr</span>
+              <span>Break-even ₹23.95 Cr</span>
+              <span>Target ₹30 Cr</span>
+              <span>Max ₹40 Cr</span>
+            </div>
+          </div>
+
           <div>
-            <p className="eyebrow text-muted-foreground">Scenarios</p>
+            <div className="flex items-center justify-between">
+              <p className="eyebrow text-muted-foreground">Scenarios</p>
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-sm border border-border bg-card px-3 py-1 text-xs font-semibold text-muted-foreground hover:text-ink hover:border-gold-deep transition-colors"
+                title="Reset to P1 default scenario"
+              >
+                <RotateCcw size={13} /> Reset
+              </button>
+            </div>
             <div className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
               {presets.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => applyPreset(p.id)}
-                  className={`shrink-0 rounded-sm border px-3 py-2 text-left text-sm transition-colors ${
+                  className={`shrink-0 min-h-[44px] rounded-sm border px-3 py-2 text-left text-sm transition-colors ${
                     preset === p.id
                       ? "border-espresso bg-espresso text-on-dark shadow-sm"
                       : "border-border bg-card hover:border-gold-deep text-ink"
@@ -124,7 +269,7 @@ function Board() {
                     <button
                       onClick={() => toggle(m.id)}
                       aria-pressed={active}
-                      className={`flex w-full items-center gap-3 rounded-md border p-4 text-left transition-colors ${
+                      className={`flex min-h-[44px] w-full items-center gap-3 rounded-md border p-4 text-left transition-colors ${
                         active ? "border-gold-deep bg-cream" : "border-border bg-card hover:border-gold-deep"
                       }`}
                     >
@@ -165,13 +310,18 @@ function Board() {
                   {worliComps.map((c) => (
                     <tr key={c.bldg} className="border-b border-border/60 last:border-0 hover:bg-cream/20">
                       <td className="p-3 text-ink">{c.bldg}</td>
-                      <td className="tnum p-3 text-right font-semibold text-ink">{cr(c.ask)}</td>
+                      <td className="tnum p-3 text-right font-semibold text-ink">
+                        {c.ask != null ? cr(c.ask) : "—"}
+                      </td>
                       <td className="tnum p-3 text-right text-muted-foreground">{c.psf.toLocaleString("en-IN")}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+            <p className="mt-2 text-xs italic text-muted-foreground">
+              Target flat area/floor: Missing
+            </p>
           </div>
         </section>
 
@@ -188,7 +338,7 @@ function Board() {
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card shadow-[0_-8px_24px_-12px_rgba(79,5,26,0.15)] lg:hidden">
         <button
           onClick={() => setSheet(!sheet)}
-          className="flex w-full items-center justify-between px-4 py-3"
+          className="flex min-h-[44px] w-full items-center justify-between px-4 py-3"
           aria-expanded={sheet}
         >
           <span className="eyebrow text-gold-deep">Scoreboard</span>

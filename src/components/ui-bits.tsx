@@ -33,7 +33,7 @@ export function TopBar() {
             <Link
               key={n.to}
               to={n.to}
-              className="relative py-4 text-sm font-medium text-on-dark-muted transition-colors hover:text-on-dark"
+              className="relative py-4 min-h-[44px] inline-flex items-center text-sm font-medium text-on-dark-muted transition-colors hover:text-on-dark"
               activeProps={{ className: "!text-on-dark !font-semibold after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold" }}
             >
               {n.label}
@@ -43,7 +43,7 @@ export function TopBar() {
 
         {/* Mobile menu trigger */}
         <button
-          className="md:hidden text-champagne hover:text-on-dark p-1"
+          className="md:hidden text-champagne hover:text-on-dark min-h-[44px] min-w-[44px] flex items-center justify-center p-1"
           aria-label="Toggle navigation menu"
           onClick={() => setOpen(!open)}
         >
@@ -59,7 +59,7 @@ export function TopBar() {
               key={n.to}
               to={n.to}
               onClick={() => setOpen(false)}
-              className="rounded-md px-3 py-2 text-sm text-on-dark-muted hover:bg-roast hover:text-on-dark transition-colors"
+              className="rounded-md px-3 py-2.5 min-h-[44px] flex items-center text-sm text-on-dark-muted hover:bg-roast hover:text-on-dark transition-colors"
               activeProps={{ className: "!bg-roast !text-gold !font-bold" }}
             >
               {n.label}
@@ -75,6 +75,11 @@ export function useCountUp(target: number, ms = 300) {
   const [v, setV] = useState(target);
   const from = useRef(target);
   useEffect(() => {
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setV(target);
+      from.current = target;
+      return;
+    }
     const start = performance.now();
     const a = from.current;
     let raf = 0;

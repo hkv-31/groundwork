@@ -13,6 +13,9 @@ interface Ctx {
   result: Result;
   baseline: Result;
   log: LogEntry[];
+  rationale: string;
+  setRationale: (r: string) => void;
+  reset: () => void;
 }
 
 const C = createContext<Ctx | null>(null);
@@ -20,15 +23,26 @@ const stamp = () => new Date().toLocaleTimeString("en-IN", { hour: "2-digit", mi
 
 export function BoardProvider({ children }: { children: ReactNode }) {
   const [setup, setSetup] = useState<Setup>(defaultSetup);
-  const [on, setOn] = useState<Set<MoveId>>(new Set());
-  const [preset, setPreset] = useState<string | null>("P0");
-  const [log, setLog] = useState<LogEntry[]>([]);
+  const defaultMoves = presets.find((x) => x.id === "P1")?.moves ?? ["buy"];
+  const [on, setOn] = useState<Set<MoveId>>(new Set(defaultMoves));
+  const [preset, setPreset] = useState<string | null>("P1");
+  const [rationale, setRationale] = useState<string>(
+    "Mr. Mehta's priority is gifting Arjun the Worli flat, creating a ₹6.05 Cr plant cash gap. Recommending legal review of gift deed vs cash gift and negotiating broker asking price."
+  );
+  const [log, setLog] = useState<LogEntry[]>([
+    {
+      id: 1,
+      time: stamp(),
+      action: "Scenario P1 — Mr. Mehta's plan",
+      result: compute(new Set(defaultMoves), defaultSetup),
+    },
+  ]);
 
   const push = (action: string, next: Set<MoveId>) =>
     setLog((l) => [{ id: Date.now() + Math.random(), time: stamp(), action, result: compute(next, setup) }, ...l]);
 
   const value = useMemo<Ctx>(() => ({
-    setup, setSetup, on, preset, log,
+    setup, setSetup, on, preset, log, rationale, setRationale,
     result: compute(on, setup),
     baseline: compute(new Set(), setup),
     toggle: (m) => {
@@ -44,7 +58,15 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       setOn(next); setPreset(id);
       push(`Scenario ${p.id} — ${p.name}`, next);
     },
-  }), [setup, on, preset, log]);
+    reset: () => {
+      setSetup(defaultSetup);
+      const p1 = presets.find((x) => x.id === "P1")!;
+      const next = new Set(p1.moves);
+      setOn(next);
+      setPreset("P1");
+      setLog([{ id: Date.now(), time: stamp(), action: "Reset to P1 (default)", result: compute(next, defaultSetup) }]);
+    },
+  }), [setup, on, preset, log, rationale]);
 
   return <C.Provider value={value}>{children}</C.Provider>;
 }

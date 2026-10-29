@@ -15,30 +15,30 @@ export const people = [
   {
     id: "mr",
     name: "Mr. Mehta",
-    role: "Father, 68",
+    role: "Father, 62",
     wish: "Legacy",
-    line: "Keep the family's addresses in the family name.",
+    line: "Property is what you leave behind; gift Arjun the Worli flat.",
   },
   {
     id: "mrs",
     name: "Mrs. Mehta",
-    role: "Mother, 64",
+    role: "Mother, 58",
     wish: "Closeness",
-    line: "Keep the children within a short drive in Mumbai.",
+    line: "Keep the family close after the wedding; happy to sell Alibaug.",
   },
   {
     id: "riya",
     name: "Riya",
-    role: "Daughter, 36",
+    role: "Daughter, 34",
     wish: "Liquidity",
-    line: "Fair value now, in cash, not bricks.",
+    line: "60% in property is too much; sell something rather than borrow.",
   },
   {
     id: "arjun",
     name: "Arjun",
-    role: "Son, 31",
+    role: "Son, 30",
     wish: "Independence",
-    line: "A home of his own, close but separate.",
+    line: "My own place in Worli, not chosen by my father; happy to rent.",
   },
 ] as const;
 
@@ -68,7 +68,7 @@ export const properties = [
     name: "Worli 3BHK (1985 bldg)",
     value: 15.0,
     status: "Rent out" as PropStatus,
-    note: "Tenanted, redevelopment pending",
+    note: "Tenanted, redevelopment vote ~13 Dec 2026",
     tag: "Assumed" as Tag,
     source: "Case-aligned estimate",
   },
@@ -77,9 +77,9 @@ export const properties = [
     name: "BKC office floor",
     value: 47.0,
     status: "Rent out" as PropStatus,
-    note: "10,000 sq ft leased to bank, ends May 2028",
-    tag: "Assumed" as Tag,
-    source: "Capitalisation estimate @ ₹335/sq ft",
+    note: "10,000 sq ft leased to bank, ends ~May 2028",
+    tag: "Sourced" as Tag,
+    source: "Rent rate Sourced (Cushman & Wakefield), area 10,000 sq ft Assumed",
   },
   {
     id: "alibaug",
@@ -193,28 +193,56 @@ export const presets: { id: string; name: string; moves: MoveId[]; desc: string 
   },
 ];
 
-export const deadlines = [
+export interface Deadline {
+  date: string;
+  label: string;
+  key: string;
+  timeRemaining: string;
+  flagged?: boolean;
+}
+
+export const deadlines: Deadline[] = [
   {
-    date: "15 Dec 2026",
-    label: "Worli flat offer expires",
-    key: "worli",
-    urgency: "Immediate",
+    date: "Sat 31 Oct 2026",
+    label: "Broker price lapses (ask for extension)",
+    key: "broker",
+    timeRemaining: "2 days",
   },
   {
-    date: "31 Mar 2027",
-    label: "BKC lease renewal window",
+    date: "~13 Dec 2026",
+    label: "Worli society redevelopment vote (6 wks post-meeting)",
+    key: "vote",
+    timeRemaining: "~6 weeks",
+    flagged: true,
+  },
+  {
+    date: "Mar 2027",
+    label: "Arjun's wedding",
+    key: "wedding",
+    timeRemaining: "~5 months",
+  },
+  {
+    date: "~May 2028",
+    label: "BKC lease ends",
     key: "bkc",
-    urgency: "Medium term",
+    timeRemaining: "~18 months",
   },
   {
-    date: "30 Jun 2027",
-    label: "Plant expansion capex needs ₹40 Cr",
+    date: "~Nov 2028",
+    label: "Plant cash needed (₹40 Cr capex)",
     key: "plant",
-    urgency: "Critical solvency",
+    timeRemaining: "~24 months",
   },
 ];
 
-export const worliComps = [
+export const worliComps: {
+  bldg: string;
+  area: string;
+  ask: number | null;
+  psf: number;
+  tag: string;
+  note: string;
+}[] = [
   {
     bldg: "Omkar 1973 3BHK",
     area: "2,000 sq ft carpet",
@@ -234,18 +262,10 @@ export const worliComps = [
   {
     bldg: "Worli 3BHK Median Asking",
     area: "2,079 sq ft carpet",
-    ask: 15.0,
+    ask: null,
     psf: 72165,
     tag: "Sourced analytics",
     note: "Property Butler Oct 2026 benchmark",
-  },
-  {
-    bldg: "Target flat (Worli asking)",
-    area: "2,000 sq ft carpet",
-    ask: 15.0,
-    psf: 75000,
-    tag: "Case listing",
-    note: "Unnegotiated broker asking price",
   },
 ];
 
@@ -312,21 +332,21 @@ export type FactKey =
 export const facts: Record<FactKey, Fact> = {
   netWorth: {
     value: "₹200 Cr",
-    source: "Family balance sheet, Sep 2026",
+    source: "Assignment brief",
     tag: "Case",
     assumption: "Excludes operating manufacturing business equity.",
   },
   property: {
     value: "₹120 Cr",
-    source: "Sum of five property valuations",
+    source: "Assignment brief",
     tag: "Case",
-    assumption: "Valuations as of Aug 2026, reallocated across 5 holdings.",
+    assumption: "Valuations reallocated across 5 holdings.",
   },
   propertyShare: {
     value: "60%",
-    source: "Property ÷ (property + liquid)",
+    source: "-",
     tag: "Assumed",
-    assumption: "Target 50% benchmark set by advisor Anika.",
+    assumption: "Target 50% benchmark (Assumed with no source).",
   },
   cashForPlant: {
     value: "₹50 Cr",
@@ -336,9 +356,9 @@ export const facts: Record<FactKey, Fact> = {
   },
   plant: {
     value: "₹40 Cr",
-    source: "Mehta Industries CFO capital expenditure memo",
+    source: "Assignment brief",
     tag: "Case",
-    assumption: "Plant capex needed within 24 months (Jun 2027).",
+    assumption: "Plant cash needed ~Nov 2028.",
   },
   fairness: {
     value: "₹0 Cr",
@@ -348,9 +368,9 @@ export const facts: Record<FactKey, Fact> = {
   },
   debt: {
     value: "₹0 Cr",
-    source: "Loan Against Property (LAP) term sheet",
-    tag: "Sourced",
-    assumption: "9.5% floating; bank sign-off pending.",
+    source: "-",
+    tag: "Assumed",
+    assumption: "9.5% floating rate (Assumed with no source).",
   },
   tax: {
     value: "14.95%",
@@ -360,9 +380,9 @@ export const facts: Record<FactKey, Fact> = {
   },
   worli: {
     value: "₹15 Cr",
-    source: "Broker asking listing, Oct 2026",
+    source: "Broker asking listing",
     tag: "Sourced",
-    assumption: "Asking listing, not registered sale; subject to negotiation.",
+    assumption: "Broker price lapses Sat 31 Oct 2026 (ask for extension).",
   },
 };
 
@@ -370,32 +390,32 @@ export const sourcesTable = [
   {
     item: "Net worth ₹200 Cr",
     tag: "Case" as Tag,
-    source: "Family balance sheet, Sep 2026",
-    limit: "Excludes operating business equity and goodwill",
+    source: "Assignment brief",
+    limit: "Operating business equity and goodwill excluded",
   },
   {
     item: "Property book ₹120 Cr",
     tag: "Case" as Tag,
-    source: "5 asset valuations (Malabar, Worli, BKC, Alibaug, Thane)",
-    limit: "Point-in-time valuations; unadjusted for capital gains",
+    source: "Assignment brief",
+    limit: "5 asset valuations (Malabar, Worli, BKC, Alibaug, Thane)",
   },
   {
     item: "Liquid assets ₹80 Cr",
     tag: "Case" as Tag,
-    source: "Custodian statement & debt mutual fund holdings",
-    limit: "Includes ₹12 Cr locked till Q1 2027",
+    source: "Assignment brief",
+    limit: "Liquid pool per assignment brief",
   },
   {
     item: "Worli flat target ₹15 Cr",
     tag: "Sourced" as Tag,
-    source: "Broker asking listing (Omkar / Lodha comp band)",
-    limit: "Asking listing, not registered sale on IGR/Zapkey",
+    source: "Broker asking listing",
+    limit: "Broker price lapses Sat 31 Oct 2026 (ask for extension); target flat area/floor missing",
   },
   {
     item: "Plant expansion ₹40 Cr",
     tag: "Case" as Tag,
-    source: "Mehta Industries board-approved capex memo",
-    limit: "Capex may fluctuate 10–15% on machinery FX rates",
+    source: "Assignment brief",
+    limit: "Cash needed ~Nov 2028 per assignment brief",
   },
   {
     item: "Minimum liquid reserve ₹30 Cr",
@@ -410,28 +430,10 @@ export const sourcesTable = [
     limit: "Awaiting CA confirmation for Section 54 relief",
   },
   {
-    item: "Gift deed stamp duty (3–7%)",
-    tag: "Missing" as Tag,
-    source: "Maharashtra Stamp Act provisions",
-    limit: "Awaiting legal counsel on parent-to-son gift deed rebate",
-  },
-  {
-    item: "Target property share 50%",
-    tag: "Assumed" as Tag,
-    source: "Knight Frank / UHNW benchmark asset allocation",
-    limit: "Family currently holds 60% in real estate",
-  },
-  {
-    item: "BKC rental yield (₹4.02 Cr/yr)",
+    item: "BKC rent rate",
     tag: "Sourced" as Tag,
-    source: "Cushman & Wakefield BKC commercial rate card",
-    limit: "Lease expires May 2028; bank tenant renewal unconfirmed",
-  },
-  {
-    item: "LAP borrowing rate 9.5%",
-    tag: "Sourced" as Tag,
-    source: "HDFC / SBI Loan Against Property indicative quotes",
-    limit: "Floating interest rate; bank appraisal required",
+    source: "Cushman & Wakefield",
+    limit: "Lease ends ~May 2028; bank tenant renewal unconfirmed",
   },
 ];
 
