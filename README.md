@@ -12,7 +12,7 @@
 
 ## 📌 Executive Summary
 
-Family property meetings frequently stall on a single contentious question—*"Should we buy Arjun the ₹15 Cr Worli flat?"*—while core fiscal constraints remain siloed across spreadsheets:
+Family property meetings frequently stall on a single contentious question- *"Should we buy Arjun the ₹15 Cr Worli flat?"*- while core fiscal constraints remain siloed across spreadsheets:
 * A **₹40 Cr plant expansion capex** due by June 2027.
 * A **₹30 Cr untouchable liquid reserve**.
 * Conflicting stakeholder priorities across three generations:
