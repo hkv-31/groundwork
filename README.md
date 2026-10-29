@@ -1,4 +1,4 @@
-# Groundwork — Decisions, Built on Clarity
+# Groundwork- Decisions, Built on Clarity
 
 > **A luxury decision board and wealth engine for advisors leading high-stakes family property meetings.**  
 > *MVP Case Study: The Mehta Family (₹200 Cr Net Worth · ₹120 Cr Property Portfolio).*
@@ -16,10 +16,10 @@ Family property meetings frequently stall on a single contentious question—*"S
 * A **₹40 Cr plant expansion capex** due by June 2027.
 * A **₹30 Cr untouchable liquid reserve**.
 * Conflicting stakeholder priorities across three generations:
-  * **Mr. Mehta (Patriarch, 68):** Legacy — preserve family addresses under the family name.
-  * **Mrs. Mehta (Matriarch, 64):** Closeness — keep children within a short drive in Mumbai.
-  * **Riya (Daughter, 36):** Liquidity — fair value now in cash, not illiquid bricks.
-  * **Arjun (Son, 31):** Independence — a home of his own, close but separate.
+  * **Mr. Mehta (Patriarch, 68):** Legacy- preserve family addresses under the family name.
+  * **Mrs. Mehta (Matriarch, 64):** Closeness- keep children within a short drive in Mumbai.
+  * **Riya (Daughter, 36):** Liquidity- fair value now in cash, not illiquid bricks.
+  * **Arjun (Son, 31):** Independence- a home of his own, close but separate.
 
 **Groundwork** replaces adversarial opinion wars with real-time mathematical clarity. In a single 5-minute boardroom session, wealth advisors toggle moves, observe instant liquidity and fairness impacts, inspect data provenance, and print signed next steps.
 
@@ -78,23 +78,23 @@ All 7 preset scenarios from Section 8 of the build specification are implemented
 
 ### Database Schema ([`src/lib/db/schema.sql`](src/lib/db/schema.sql))
 Compatible with PostgreSQL / Neon (Vercel Postgres):
-* `cases` — family profile, liquid reserve & financial constraints (JSONB).
-* `assets` — individual property holdings, valuations, rental yields, and tax basis.
-* `people` — family stakeholders, priorities, and personal mandates.
-* `scenarios` — move combinations and resulting mathematical outputs.
-* `decisions` — recorded agreements, rationale, and signed next steps.
-* `sources` — data provenance, regulatory citations, and data limits.
+* `cases`- family profile, liquid reserve & financial constraints (JSONB).
+* `assets`- individual property holdings, valuations, rental yields, and tax basis.
+* `people`- family stakeholders, priorities, and personal mandates.
+* `scenarios`- move combinations and resulting mathematical outputs.
+* `decisions`- recorded agreements, rationale, and signed next steps.
+* `sources`- data provenance, regulatory citations, and data limits.
 
 ### REST Endpoints ([`src/server/api.ts`](src/server/api.ts))
-* `GET /api/cases` — List all advisory cases.
-* `POST /api/cases` — Create a new case.
-* `GET /api/cases/:id` — Load inputs and baseline metrics.
-* `PUT /api/cases/:id` — Update case parameters.
-* `POST /api/cases/:id/scenarios` — Server-side simulation via `model.ts`.
-* `GET /api/cases/:id/log` — Audit log of scenario transitions with timestamps.
-* `POST /api/cases/:id/decision` — Record signed family consensus.
-* `GET /api/cases/:id/summary` — Deterministic recap and legal/tax next steps.
-* `GET /api/sources` — Full evidence provenance table.
+* `GET /api/cases`- List all advisory cases.
+* `POST /api/cases`- Create a new case.
+* `GET /api/cases/:id`- Load inputs and baseline metrics.
+* `PUT /api/cases/:id`- Update case parameters.
+* `POST /api/cases/:id/scenarios`- Server-side simulation via `model.ts`.
+* `GET /api/cases/:id/log`- Audit log of scenario transitions with timestamps.
+* `POST /api/cases/:id/decision`- Record signed family consensus.
+* `GET /api/cases/:id/summary`- Deterministic recap and legal/tax next steps.
+* `GET /api/sources`- Full evidence provenance table.
 
 > **Zero Environment Variables Guarantee:** The app is configured with an in-memory seeded adapter. If `DATABASE_URL` is omitted, the live deployment runs flawlessly in Demo Mode without breaking during evaluation.
 
