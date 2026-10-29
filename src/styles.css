@@ -1,0 +1,172 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --color-background: #F3ECE1;  /* Soft cream — user-specified background */
+  --color-foreground: var(--foreground);
+  --color-card: #F3ECE1;        /* Soft cream — same as page background */
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Exact Luxury Palette from user image */
+  --color-burgundy: var(--burgundy);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-walnut: var(--walnut);
+  --color-champagne: var(--champagne);
+  --color-indigo: var(--indigo);
+  --color-indigo-elevated: var(--indigo-elevated);
+
+  /* Semantic aliases - using rich Deep Burgundy in place of blue */
+  --color-espresso: var(--espresso);
+  --color-roast: var(--roast);
+  --color-burgundy-deep: var(--burgundy-deep);
+  --color-burgundy-elevated: var(--burgundy-elevated);
+  --color-cream: var(--cream);
+  --color-ivory: var(--ivory);
+  --color-ink: var(--ink);
+  --color-on-dark: var(--on-dark);
+  --color-on-dark-muted: var(--on-dark-muted);
+  --color-line-dark: var(--line-dark);
+  --color-met: var(--met);
+  --color-partly: var(--partly);
+  --color-notmet: var(--notmet);
+}
+
+:root {
+  --radius: 0.5rem;
+
+  /* The 5 Key Palette Swatches — user-chosen red #700404 as primary */
+  --burgundy: #700404;          /* Bright red accent: dots, status notmet */
+  --burgundy-deep: #3C0606;     /* Main hero/nav/footer background (4th swatch) */
+  --burgundy-elevated: #2E0505; /* Slightly deeper surface for card-on-dark */
+  --gold: #B58C4F;              /* Antique Gold */
+  --gold-deep: #85612E;         /* Rich Antique Gold for light-bg text */
+  --walnut: #92643E;            /* Warm Walnut */
+  --champagne: #D9C3A6;         /* Champagne Cream */
+  --indigo: #2D2C4A;            /* Midnight Indigo */
+  --indigo-elevated: #39385C;   /* Elevated Midnight Indigo surface */
+
+  /* Neutral Luxury Canvas */
+  --ivory: #F3ECE1;             /* Soft Cream ground */
+  --cream: #F3ECE1;             /* Soft Cream tint */
+  --ink: #1C1B2A;               /* Deep Charcoal for crisp contrast typography */
+  --on-dark: #F3ECE1;           /* Soft Cream text on dark surfaces */
+  --on-dark-muted: #D9C3A6;     /* Champagne Cream muted text on dark */
+  --line-dark: #380404;         /* Subtle hairline border on dark red */
+
+  /* Semantic aliases */
+  --espresso: var(--burgundy-deep);
+  --roast: var(--burgundy-elevated);
+
+  /* Semantic status indicators */
+  --met: #266E51;               /* Emerald luxury green */
+  --partly: #B58C4F;            /* Antique Gold */
+  --notmet: #700404;            /* Red accent */
+
+  /* App page mapping */
+  --background: #F3ECE1;        /* Soft Cream */
+  --foreground: var(--ink);
+  --card: #F3ECE1;              /* Soft Cream — same as page */
+  --card-foreground: var(--ink);
+  --popover: var(--indigo);
+  --popover-foreground: var(--ivory);
+  --primary: var(--gold);
+  --primary-foreground: var(--indigo-deep);
+  --secondary: var(--cream);
+  --secondary-foreground: var(--ink);
+  --muted: var(--cream);
+  --muted-foreground: #6A645F;
+  --accent: var(--cream);
+  --accent-foreground: var(--ink);
+  --destructive: var(--burgundy);
+  --destructive-foreground: var(--ivory);
+  --border: #E4D8C7;
+  --input: #DACDBD;
+  --ring: var(--gold);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "tnum" 1, "cv11" 1;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  /* Native select/input elements default to white — force soft cream */
+  select, input, textarea {
+    background-color: #F3ECE1;
+  }
+  h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.03em; }
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+  }
+}
+
+@utility headline-xl {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 0.94;
+  font-size: clamp(2.75rem, 8.5vw, 6.75rem);
+}
+@utility eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+@utility tnum { font-variant-numeric: tabular-nums; }
+@utility fade-slow { animation: fadeSlow 650ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@utility luxury-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(45, 44, 74, 0.08);
+  }
+}
+@utility gold-glow {
+  box-shadow: 0 0 20px -3px rgba(181, 140, 79, 0.25);
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@keyframes fadeSlow {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
