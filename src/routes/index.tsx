@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import dusk from "@/assets/mumbai-dusk.jpg";
-import { compute, defaultSetup, deadlines, people, presets, cr, type MoveId } from "@/lib/data";
-import { CountUp, StatusPill } from "@/components/ui-bits";
+import { compute, defaultSetup, deadlines, people, presets, relativeTimeline, cr, type MoveId } from "@/lib/data";
+import { CountUp, StatusPill, useCurrentDay } from "@/components/ui-bits";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,7 +28,7 @@ const steps = [
 ];
 
 function Teaser() {
-  const cycle = ["P1", "P2", "P4", "P6"];
+  const cycle = ["P1", "P4"];
   const [i, setI] = useState(0);
 
   useEffect(() => {
@@ -85,6 +85,8 @@ function Teaser() {
 }
 
 function Landing() {
+  useCurrentDay();
+
   return (
     <main className="bg-espresso text-on-dark">
       {/* Hero Section in Deep Burgundy */}
@@ -96,7 +98,7 @@ function Landing() {
             One table.
           </h1>
           <p className="mt-6 max-w-md text-lg text-on-dark-muted leading-relaxed">
-            The Mehta family holds ₹200 Cr — ₹120 Cr of it in property. Anika has one meeting to find the move everyone can live with.
+            The Mehta family holds ₹200 Cr- ₹120 Cr of it in property. Anika has one meeting to find the move everyone can live with.
           </p>
           <Link
             to="/board"
@@ -108,7 +110,7 @@ function Landing() {
         <Teaser />
       </section>
 
-      {/* At the table section — grid-style matching Four Steps */}
+      {/* At the table section- grid-style matching Four Steps */}
       <section className="bg-cream py-16 text-ink md:py-24 border-t border-border">
         <div className="mx-auto max-w-7xl px-4 md:px-8">
           <p className="eyebrow text-gold-deep">At the table · Mehta Family Case</p>
@@ -155,7 +157,7 @@ function Landing() {
                     )}
                   </div>
                   <p className="mt-2 text-on-dark-muted text-sm leading-snug">{d.label}</p>
-                  <p className="mt-1 text-xs text-gold font-medium">{d.timeRemaining}</p>
+                  <p className="mt-1 text-xs text-gold font-medium">{relativeTimeline(d.targetDate)}</p>
                 </li>
               ))}
           </ol>
@@ -187,7 +189,7 @@ function Landing() {
           </p>
           <div className="mt-10 flex flex-col justify-between gap-4 border-t border-line-dark pt-6 text-sm text-on-dark-muted md:flex-row">
             <span>Decisions, built on clarity.</span>
-            <span>© 2026</span>
+            <span>© {new Date().getFullYear()}</span>
           </div>
         </div>
       </footer>

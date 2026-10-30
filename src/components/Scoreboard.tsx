@@ -1,8 +1,17 @@
 import { CheckCircle2, CircleAlert } from "lucide-react";
-import { cr, deadlines, facts, people, type Result } from "@/lib/data";
-import { CountUp, Num, StatusPill } from "./ui-bits";
+import { cr, deadlines, facts, people, relativeTimeline, type Result } from "@/lib/data";
+import { CountUp, Num, StatusPill, useCurrentDay } from "./ui-bits";
+
+const compactDeadlineLabels: Record<string, string> = {
+  broker: "Worli price extension",
+  vote: "Worli redevelopment vote",
+  wedding: "Arjun wedding",
+  bkc: "BKC lease ends",
+  plant: "Plant funding",
+};
 
 export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
+  useCurrentDay();
   const shareOk = Math.abs(r.propertyShare - r.targetShare) <= 5;
   const plantPct = Math.min(100, (r.cashForPlant / r.plantNeed) * 100);
   const shareDiff = Math.round((r.propertyShare - r.targetShare) * 10) / 10;
@@ -25,8 +34,8 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
           <span className="eyebrow text-walnut font-semibold">Property Concentration</span>
           <span className="font-medium text-ink">Target {r.targetShare}%</span>
         </div>
-        <div className="mt-2 flex items-baseline justify-between">
-          <span className="font-display text-3xl font-bold tracking-tight text-ink">
+        <div className="mt-2 flex items-center justify-between gap-3">
+          <span className="whitespace-nowrap font-display text-[30px] font-bold leading-none tracking-tight text-ink">
             <Num fact={facts.propertyShare}>
               <CountUp value={r.propertyShare} format={(n) => `${Math.round(n)}%`} />
             </Num>
@@ -71,7 +80,7 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
             }`}
           >
             {isSpare ? <CheckCircle2 size={13} aria-hidden /> : <CircleAlert size={13} aria-hidden />}
-            {plantWord}
+            <span className="whitespace-nowrap">{plantWord}</span>
           </span>
         </div>
         <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-cream">
@@ -129,20 +138,20 @@ export function Scoreboard({ r, compact }: { r: Result; compact?: boolean }) {
           <p className="eyebrow text-walnut font-semibold border-b border-border pb-2">Key Deadlines & Timeline</p>
           <ul className="mt-3 space-y-3">
             {deadlines.map((d) => (
-              <li key={d.key} className="flex items-start justify-between gap-3 text-xs sm:text-sm">
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <p className="font-medium text-ink leading-snug">{d.label}</p>
+              <li key={d.key} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 text-xs sm:text-sm">
+                <div className="min-w-0">
+                  <div>
+                    <p className="font-medium leading-snug text-ink">{compactDeadlineLabels[d.key] ?? d.label}</p>
                     {d.flagged && (
-                      <span className="rounded bg-burgundy/10 px-1.5 py-0.5 text-[10px] font-bold text-burgundy border border-burgundy/25">
+                      <span className="mt-1 inline-flex rounded bg-burgundy/10 px-1.5 py-0.5 text-[10px] font-bold text-burgundy border border-burgundy/25">
                         Flagged
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="shrink-0 text-right">
-                  <span className="tnum font-semibold text-gold-deep block">{d.date}</span>
-                  <span className="tnum text-[11px] text-muted-foreground block">{d.timeRemaining}</span>
+                <div className="shrink-0 whitespace-nowrap text-right">
+                  <span className="tnum block font-semibold text-gold-deep">{d.date}</span>
+                  <span className="tnum block text-[11px] text-muted-foreground">{relativeTimeline(d.targetDate)}</span>
                 </div>
               </li>
             ))}

@@ -103,6 +103,21 @@ export function CountUp({ value, format }: { value: number; format: (n: number) 
   return <span className="tnum">{format(v)}</span>;
 }
 
+export function useCurrentDay() {
+  const [day, setDay] = useState(() => new Date().toDateString());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      const nextDay = new Date().toDateString();
+      setDay((currentDay) => (currentDay === nextDay ? currentDay : nextDay));
+    }, 60_000);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  return day;
+}
+
 const statusMap: Record<Status, { Icon: typeof CheckCircle2; cls: string; bg: string }> = {
   Met: {
     Icon: CheckCircle2,
@@ -165,7 +180,7 @@ export function Num({ fact, children, dark }: { fact: Fact; children: ReactNode;
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`tnum cursor-pointer border-b border-dotted transition-colors ${
+        className={`tnum whitespace-nowrap cursor-pointer border-b border-dotted transition-colors ${
           dark ? "border-gold text-on-dark hover:text-gold" : "border-gold-deep hover:text-gold-deep"
         }`}
         title="Tap to view source and evidence provenance"

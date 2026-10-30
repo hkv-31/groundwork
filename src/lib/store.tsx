@@ -33,7 +33,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     {
       id: 1,
       time: stamp(),
-      action: "Scenario P1 — Mr. Mehta's plan",
+      action: "Scenario P1- Mr. Mehta's plan",
       result: compute(new Set(defaultMoves), defaultSetup),
     },
   ]);
@@ -56,7 +56,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       const p = presets.find((x) => x.id === id)!;
       const next = new Set(p.moves);
       setOn(next); setPreset(id);
-      push(`Scenario ${p.id} — ${p.name}`, next);
+      push(`Scenario ${p.id}- ${p.name}`, next);
     },
     reset: () => {
       setSetup(defaultSetup);

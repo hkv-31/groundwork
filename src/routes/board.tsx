@@ -35,24 +35,24 @@ const insightsData: InsightData[] = [
   {
     title: "Alibaug ≈ ₹15 lakh per weekend",
     source: "Family usage pattern & holding cost",
-    calc: "₹8 Cr capital tied up + maintenance for 4 weekends/year equates to ~₹15 lakh per weekend stay.",
+    calc: "The family uses the villa only four weekends a year. Keeping ₹8 Cr tied up there works out to roughly ₹15 lakh for each weekend used.",
     tag: "Assumed",
   },
   {
     title: "Property earns ≈ 3.7% gross",
     source: "Cushman & Wakefield & market rental yields",
-    calc: "BKC floor yields 8.55% (₹4.02 Cr/yr), Worli 2.7% (₹0.4 Cr/yr); total ₹120 Cr portfolio yields ~3.7% gross across residential and commercial.",
+    calc: "The ₹120 Cr property portfolio earns roughly 3.7% before costs. BKC contributes ₹4.02 Cr a year and Worli contributes about ₹0.4 Cr.",
     tag: "Sourced",
   },
   {
-    title: "Buying beats renting only above ≈ 6.6% appreciation",
-    source: "Cost-of-capital & yield model",
-    calc: "At 2.5% rental yield and 7% alternative fund return on capital, purchase breaks even only if annual property appreciation exceeds ~6.6%.",
+    title: "Matching Riya turns a ₹6 Cr gap into ₹13.85 Cr",
+    source: "Sibling transfer and equalisation model",
+    calc: "If the family buys the flat for Arjun, matching that transfer for Riya also uses cash. The plant gap grows from about ₹6 Cr in P1 to ₹13.85 Cr in P3.",
     tag: "Assumed",
   },
 ];
 
-function InsightPopover({ item }: { item: InsightData }) {
+function InsightPopover({ item, align = "left" }: { item: InsightData; align?: "left" | "right" }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -78,7 +78,9 @@ function InsightPopover({ item }: { item: InsightData }) {
       {open && (
         <div
           role="dialog"
-          className="fade-slow absolute left-0 top-full z-50 mt-2 w-80 rounded-lg border border-line-dark bg-espresso p-4 text-left text-xs text-on-dark shadow-2xl"
+          className={`fade-slow absolute bottom-full z-50 mb-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-line-dark bg-espresso p-4 text-left text-xs text-on-dark shadow-2xl ${
+            align === "right" ? "right-0" : "left-0"
+          }`}
         >
           <div className="mb-2 flex items-center justify-between border-b border-line-dark pb-1.5">
             <span className="eyebrow text-gold">Insight Evidence</span>
@@ -98,13 +100,13 @@ function InsightPopover({ item }: { item: InsightData }) {
 function Board() {
   const { on, toggle, applyPreset, preset, result, setup, setSetup, reset } = useBoard();
   const [sheet, setSheet] = useState(false);
+  const selectedPreset = presets.find((p) => p.id === preset);
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-40 pt-8 md:px-8 lg:pb-16 min-h-screen">
       {/* Clean Uncrowded Header with Mehta Case Pill */}
       <div className="fade-slow border-b border-border pb-6">
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-          <p className="eyebrow text-gold-deep">Mehta family · Meeting {setup.meetingDate}</p>
+        <div className="flex flex-wrap items-center justify-end gap-2 mb-2">
           <span className="inline-flex items-center gap-2 rounded-full border border-champagne/40 bg-cream/95 px-3 py-1 text-xs font-semibold text-walnut shadow-sm">
             <span className="h-2 w-2 rounded-full bg-burgundy" />
             Mehta Family Case · Active MVP
@@ -113,15 +115,15 @@ function Board() {
         <h1 className="mt-2 max-w-4xl text-3xl font-bold leading-tight text-ink md:text-5xl">
           Commit <Num fact={facts.worli}>₹15 Cr</Num> to the Worli flat for Arjun, or what instead?
         </h1>
-        <p className="mt-3 text-xs italic text-muted-foreground flex items-center gap-1.5">
-          <span>⚠️ Illustrative figures; tax and legal pending</span>
-        </p>
-
         {/* Insights Strip */}
         <div className="mt-5 flex flex-wrap items-center gap-2.5">
           <span className="eyebrow text-gold-deep text-[11px] mr-1">Key Insights:</span>
-          {insightsData.map((item) => (
-            <InsightPopover key={item.title} item={item} />
+          {insightsData.map((item, index) => (
+            <InsightPopover
+              key={item.title}
+              item={item}
+              align={index === insightsData.length - 1 ? "right" : "left"}
+            />
           ))}
         </div>
       </div>
@@ -135,7 +137,6 @@ function Board() {
               {properties.map((p) => {
                 const s = setup.props.find((x) => x.id === p.id) || p;
                 const sold = (p.id === "alibaug" && on.has("alibaug")) || (p.id === "bkc" && on.has("bkc"));
-                const isWorli = p.id === "worli_existing";
                 return (
                   <li
                     key={p.id}
@@ -143,20 +144,13 @@ function Board() {
                       sold ? "opacity-50" : ""
                     }`}
                   >
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-sm font-semibold text-ink">{p.name}</span>
-                      <span className="tnum text-sm text-ink">{cr(s.value)}</span>
-                    </div>
-                    <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        {p.note}
-                        {isWorli && (
-                          <span className="rounded bg-burgundy/10 px-1 py-0.5 text-[10px] font-bold text-burgundy border border-burgundy/20">
-                            Society vote ~13 Dec
-                          </span>
-                        )}
+                    <div className="grid grid-cols-[minmax(0,1fr)_64px] gap-x-3">
+                      <span className="text-[13px] font-semibold text-ink">{p.name}</span>
+                      <span className="tnum text-right text-[13px] text-ink">{cr(s.value)}</span>
+                      <span className="mt-1 min-w-0 text-[11px] text-muted-foreground">{p.note}</span>
+                      <span className="mt-1 text-right text-[11px] font-medium text-gold-deep">
+                        {sold ? "Sell" : s.status}
                       </span>
-                      <span className="text-gold-deep font-medium">{sold ? "Sell" : s.status}</span>
                     </div>
                   </li>
                 );
@@ -250,13 +244,15 @@ function Board() {
                       : "border-border bg-card hover:border-gold-deep text-ink"
                   }`}
                 >
-                  <span className={`tnum block text-xs ${preset === p.id ? "text-gold" : "opacity-70"}`}>
-                    {p.id}
-                  </span>
-                  {p.name}
+                    <span className={`tnum block text-sm font-semibold ${preset === p.id ? "text-gold" : "opacity-70"}`}>
+                      {p.id}
+                    </span>
                 </button>
               ))}
             </div>
+            <p className="mt-2 min-h-5 text-sm text-muted-foreground">
+              {selectedPreset?.desc ?? "Custom combination- adjust the moves below."}
+            </p>
           </div>
 
           <div>
@@ -281,8 +277,8 @@ function Board() {
                         {active && <Check size={13} />}
                       </span>
                       <span>
-                        <span className="block font-semibold text-ink">{m.label}</span>
-                        <span className="tnum block text-xs text-muted-foreground">{m.hint}</span>
+                        <span className="block text-sm font-semibold text-ink">{m.label}</span>
+                        <span className="tnum block text-[11px] text-muted-foreground">{m.hint}</span>
                       </span>
                     </button>
                   </li>
@@ -311,7 +307,7 @@ function Board() {
                     <tr key={c.bldg} className="border-b border-border/60 last:border-0 hover:bg-cream/20">
                       <td className="p-3 text-ink">{c.bldg}</td>
                       <td className="tnum p-3 text-right font-semibold text-ink">
-                        {c.ask != null ? cr(c.ask) : "—"}
+                        {c.ask != null ? cr(c.ask) : "Not listed"}
                       </td>
                       <td className="tnum p-3 text-right text-muted-foreground">{c.psf.toLocaleString("en-IN")}</td>
                     </tr>

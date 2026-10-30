@@ -68,7 +68,7 @@ export const properties = [
     name: "Worli 3BHK (1985 bldg)",
     value: 15.0,
     status: "Rent out" as PropStatus,
-    note: "Tenanted, redevelopment vote ~13 Dec 2026",
+    note: "Tenanted, redevelopment vote pending",
     tag: "Assumed" as Tag,
     source: "Case-aligned estimate",
   },
@@ -77,7 +77,7 @@ export const properties = [
     name: "BKC office floor",
     value: 47.0,
     status: "Rent out" as PropStatus,
-    note: "10,000 sq ft leased to bank, ends ~May 2028",
+    note: "10,000 sq ft leased to bank",
     tag: "Sourced" as Tag,
     source: "Rent rate Sourced (Cushman & Wakefield), area 10,000 sq ft Assumed",
   },
@@ -197,8 +197,19 @@ export interface Deadline {
   date: string;
   label: string;
   key: string;
-  timeRemaining: string;
+  targetDate: string;
   flagged?: boolean;
+}
+
+export function relativeTimeline(targetDate: string, now = new Date()): string {
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const target = new Date(`${targetDate}T00:00:00`);
+  const days = Math.round((target.getTime() - today.getTime()) / 86_400_000);
+
+  if (days === 0) return "today";
+  if (days === 1) return "in 1 day";
+  if (days === -1) return "1 day ago";
+  return days > 0 ? `in ${days} days` : `${Math.abs(days)} days ago`;
 }
 
 export const deadlines: Deadline[] = [
@@ -206,32 +217,85 @@ export const deadlines: Deadline[] = [
     date: "Sat 31 Oct 2026",
     label: "Broker price lapses (ask for extension)",
     key: "broker",
-    timeRemaining: "2 days",
+    targetDate: "2026-10-31",
   },
   {
     date: "~13 Dec 2026",
     label: "Worli society redevelopment vote (6 wks post-meeting)",
     key: "vote",
-    timeRemaining: "~6 weeks",
+    targetDate: "2026-12-13",
     flagged: true,
   },
   {
     date: "Mar 2027",
     label: "Arjun's wedding",
     key: "wedding",
-    timeRemaining: "~5 months",
+    targetDate: "2027-03-01",
   },
   {
     date: "~May 2028",
     label: "BKC lease ends",
     key: "bkc",
-    timeRemaining: "~18 months",
+    targetDate: "2028-05-01",
   },
   {
     date: "~Nov 2028",
     label: "Plant cash needed (₹40 Cr capex)",
     key: "plant",
-    timeRemaining: "~24 months",
+    targetDate: "2028-11-01",
+  },
+];
+
+export interface DecisionQueueItem {
+  id: string;
+  label: string;
+  date: string;
+  targetDate?: string;
+  owner: string;
+  scenarios: string[];
+  badge?: string;
+}
+
+export const decisionQueue: DecisionQueueItem[] = [
+  {
+    id: "worli-decision",
+    label: "Sign for Worli flat or ask for extension",
+    date: "Sat 31 Oct",
+    targetDate: "2026-10-31",
+    owner: "Anika + family",
+    scenarios: ["P1", "P2", "P3"],
+    badge: "decision that matters most now",
+  },
+  {
+    id: "alibaug-sale",
+    label: "Sell Alibaug",
+    date: "before Dec",
+    targetDate: "2026-12-01",
+    owner: "Family + CA",
+    scenarios: ["P2", "P3", "P4", "P5"],
+  },
+  {
+    id: "redevelopment-vote",
+    label: "Redevelopment vote",
+    date: "~13 Dec",
+    targetDate: "2026-12-13",
+    owner: "Worli society + family",
+    scenarios: ["P1", "P2", "P3"],
+  },
+  {
+    id: "plant-funding",
+    label: "Plant funding route",
+    date: "~Nov 2028",
+    targetDate: "2028-11-01",
+    owner: "Mr. Mehta + CA",
+    scenarios: ["P0", "P1", "P2", "P3", "P4", "P5", "P6"],
+  },
+  {
+    id: "succession-fairness",
+    label: "Succession and fairness",
+    date: "later",
+    owner: "Family + lawyer",
+    scenarios: ["P3", "P5", "P6"],
   },
 ];
 
@@ -358,7 +422,7 @@ export const facts: Record<FactKey, Fact> = {
     value: "₹40 Cr",
     source: "Assignment brief",
     tag: "Case",
-    assumption: "Plant cash needed ~Nov 2028.",
+    assumption: "Plant cash needed for the expansion.",
   },
   fairness: {
     value: "₹0 Cr",
@@ -382,7 +446,7 @@ export const facts: Record<FactKey, Fact> = {
     value: "₹15 Cr",
     source: "Broker asking listing",
     tag: "Sourced",
-    assumption: "Broker price lapses Sat 31 Oct 2026 (ask for extension).",
+    assumption: "Broker price deadline; ask for an extension.",
   },
 };
 
@@ -409,13 +473,13 @@ export const sourcesTable = [
     item: "Worli flat target ₹15 Cr",
     tag: "Sourced" as Tag,
     source: "Broker asking listing",
-    limit: "Broker price lapses Sat 31 Oct 2026 (ask for extension); target flat area/floor missing",
+    limit: "Broker price deadline; target flat area/floor missing",
   },
   {
     item: "Plant expansion ₹40 Cr",
     tag: "Case" as Tag,
     source: "Assignment brief",
-    limit: "Cash needed ~Nov 2028 per assignment brief",
+    limit: "Cash needed for the plant expansion",
   },
   {
     item: "Minimum liquid reserve ₹30 Cr",
@@ -433,7 +497,7 @@ export const sourcesTable = [
     item: "BKC rent rate",
     tag: "Sourced" as Tag,
     source: "Cushman & Wakefield",
-    limit: "Lease ends ~May 2028; bank tenant renewal unconfirmed",
+    limit: "Lease end; bank tenant renewal unconfirmed",
   },
 ];
 

@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo } from "react";
 import { Printer } from "lucide-react";
 import { useBoard } from "@/lib/store";
-import { cr, moves, people, presets, type Result } from "@/lib/data";
-import { PageHead, StatusPill } from "@/components/ui-bits";
+import { cr, moves, people, presets, relativeTimeline, type Result } from "@/lib/data";
+import { PageHead, StatusPill, useCurrentDay } from "@/components/ui-bits";
+import { DecisionQueue } from "@/components/DecisionQueue";
 
 export const Route = createFileRoute("/summary")({
   head: () => ({
@@ -31,20 +32,22 @@ const rows: [string, (r: Result) => string][] = [
 ];
 
 function Summary() {
+  const today = useCurrentDay();
   const { on, preset, result, baseline, setup, log, rationale, setRationale } = useBoard();
   const p = presets.find((x) => x.id === preset);
   const chosen = moves.filter((m) => on.has(m.id));
 
   const dynamicNextSteps = useMemo(() => {
+    const due = (label: string, targetDate: string) => `${label} · ${relativeTimeline(targetDate)}`;
     const list: [string, string, string][] = [
-      ["Anika", "Ask broker for price extension on Worli flat", "31 Oct"],
+      ["Anika", "Ask broker for price extension on Worli flat", due("31 Oct", "2026-10-31")],
     ];
 
     if (on.has("alibaug")) {
       list.push([
         "CA",
         "Compute capital gains on Alibaug and advise Section 54 reinvestment relief",
-        "7 Nov",
+        due("7 Nov", "2026-11-07"),
       ]);
     }
 
@@ -52,7 +55,7 @@ function Summary() {
       list.push([
         "CA",
         "Structure commercial capital gains on BKC floor and 54EC bonds / capital gain deposit",
-        "7 Nov",
+        due("7 Nov", "2026-11-07"),
       ]);
     }
 
@@ -60,38 +63,35 @@ function Summary() {
       list.push([
         "Lawyer",
         "Draft gift deed vs cash gift structuring for Worli flat and confirm stamp duty",
-        "14 Nov",
+        due("14 Nov", "2026-11-14"),
       ]);
     } else if (on.has("rent")) {
       list.push([
         "Lawyer",
         "Review Worli lease agreement and tenancy protections for Arjun",
-        "14 Nov",
+        due("14 Nov", "2026-11-14"),
       ]);
     }
 
     list.push([
       "Family",
       "Family sign-off before ~6 Dec (before the 13 Dec vote)",
-      "~6 Dec",
+      due("~6 Dec", "2026-12-06"),
     ]);
 
     return list;
-  }, [on]);
+  }, [on, today]);
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10 md:px-8 min-h-screen">
-      <PageHead eyebrow={`Mehta family · ${setup.meetingDate}`} title="Meeting summary.">
+      <PageHead eyebrow="Decision record" title="Meeting summary.">
         Prepared by Anika. Illustrative figures; tax and legal pending.
       </PageHead>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
-        <p className="text-sm text-muted-foreground">
-          Meeting Date: <span className="font-semibold text-ink">{setup.meetingDate} (1 Nov 2026)</span>
-        </p>
         <button
           onClick={() => window.print()}
-          className="no-print inline-flex min-h-[44px] items-center gap-2 rounded-sm border border-border bg-card px-4 py-2 text-sm font-semibold text-ink hover:border-gold-deep shadow-sm transition-colors"
+          className="no-print ml-auto inline-flex min-h-[44px] items-center gap-2 rounded-sm border border-border bg-card px-4 py-2 text-sm font-semibold text-ink hover:border-gold-deep shadow-sm transition-colors"
         >
           <Printer size={16} /> Print summary
         </button>
@@ -100,10 +100,10 @@ function Summary() {
       <section className="mb-10">
         <p className="eyebrow text-gold-deep">Chosen scenario</p>
         <h2 className="mt-2 text-2xl font-bold text-ink">
-          {p ? `${p.id} — ${p.name}` : "Custom combination"}
+          {p ? `${p.id}- ${p.name}` : "Custom combination"}
         </h2>
         <p className="mt-2 text-muted-foreground">
-          {chosen.length ? chosen.map((m) => m.label).join(" · ") : "No moves — status quo."}
+          {chosen.length ? chosen.map((m) => m.label).join(" · ") : "No moves- status quo."}
         </p>
 
         {/* Rationale Textarea */}
@@ -117,6 +117,14 @@ function Summary() {
             className="w-full rounded-md border border-border bg-card p-3 text-sm text-ink placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           />
         </label>
+      </section>
+
+      <section className="mb-10">
+        <p className="eyebrow text-gold-deep">Decision queue</p>
+        <p className="mt-1 text-sm text-muted-foreground">The next decisions, owners, dates, and scenarios they affect.</p>
+        <div className="mt-3">
+          <DecisionQueue />
+        </div>
       </section>
 
       {/* Scenarios tried from Log */}

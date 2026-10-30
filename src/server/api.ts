@@ -31,7 +31,7 @@ const memoryStore: Record<string, CaseData> = {
         id: "P0",
         moves: [],
         outputs: computeModel([], defaultModelSetup),
-        label: "P0 — Status Quo",
+        label: "P0- Status Quo",
         createdAt: new Date().toISOString(),
       },
     ],
@@ -204,7 +204,7 @@ export async function handleApiRequest(request: Request): Promise<Response> {
       id: "P5",
       moves: ["rent", "fund", "alibaug", "equal"],
       outputs: computeModel(["rent", "fund", "alibaug", "equal"], currentCase.inputs),
-      label: "P5 — Housing fund (hypothesis)",
+      label: "P5- Housing fund (hypothesis)",
     };
 
     return json({
